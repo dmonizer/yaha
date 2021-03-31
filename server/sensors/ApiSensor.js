@@ -1,15 +1,22 @@
 const fetch = require('node-fetch');
+const name = "APISENSOR";
+const uuid = "{apiSensor_c_me_myself_and_i}";
 
-let stateFunc = undefined;
-let proxyAgent= undefined;
+let api = {}
 
-const init = (sensorApi) => {
-  stateFunc = sensorApi.setStateFunction;
-  proxyAgent = sensorApi.proxyAgent;
+const register = () => {
   return {
-    name: "APISENSOR",
-    interval:5
+    name,
+    uuid,
+    interval: 5
   }
+}
+
+const initialize = (sensorApi) => {
+  // get setState, proxyAgent and config
+  api = sensorApi;
+  api.config.set("url", "https://reqres.in/api/users/") // illustrating configuration saving.
+  return {initSuccess: true, error:""}; // initialization successful
 }
 
 function randomIntBetween(min, max) {
@@ -17,11 +24,13 @@ function randomIntBetween(min, max) {
 }
 
 const run = () => {
-  stateFunc("Starting sensor run")
-  fetch("https://reqres.in/api/users/"+randomIntBetween(1,6),{agent : proxyAgent})
-    .then((result)=>result.ok?result.json():new Error(result.error()))
-    .then(json=>stateFunc("User "+json.data.first_name + " " + json.data.last_name + " logged in."))
-    .catch((err)=>console.log(err))
+  api.setState("Starting sensor run")
+  fetch(api.config.get("url") + randomIntBetween(1, 6), {agent: api.proxyAgent})
+    .then((result) => result.ok ? result.json() : new Error(result.error()))
+    .then(json => api.setState("User " + json.data.first_name + " " + json.data.last_name + " logged in."))
+    .catch((err) => console.log(err))
 }
-const end = () => {return "bye"}
-module.exports = { init, run, end, name : "APISENSOR" }
+const end = () => {
+  return "bye"
+}
+module.exports = {register, initialize, run, end, name, uuid}

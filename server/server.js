@@ -1,5 +1,5 @@
 const config = {
-  sensorsPath : process.cwd() + "\\server\\sensors\\"
+  sensorsPath: process.cwd() + "\\server\\sensors\\"
 }
 const ProxyAgent = require('https-proxy-agent')
 const stateMachine = require("./state")
@@ -9,8 +9,10 @@ const sensorLoader = require("./server-components/sensor-loader")
 
 logger.info("Logging initialized")
 
-config.logger = logger
-config.stateMachine = stateMachine
+config.logger = logger;
+config.stateMachine = stateMachine;
+config.proxyAgent = proxyAgent;
+
 const sensors = sensorLoader(config, logger)
 
 

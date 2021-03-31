@@ -4,7 +4,7 @@
   "description": "Yet Another Home Automation",
   "main": "index.js",
   "scripts": {
-    "run": "node server/server.js",
+    "startServer": "node server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
