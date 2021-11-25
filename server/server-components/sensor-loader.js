@@ -20,7 +20,9 @@ const getFilename = (file) => {
 
 const checkSensor = (sensorFile) => { // checks if sensor exports required methods
 
-  const sensor = require(sensorFile)
+  const sensorClass = require(sensorFile)
+  const sensor = new sensorClass()
+  console.log("initialised sensor: "+sensor);
   let error = "";
 
   if (!sensor) {
