@@ -55,4 +55,3 @@ export default class WeatherSensor extends BaseSensor {
         })
   }
 }
-//export default WeatherSensor;

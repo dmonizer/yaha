@@ -45,7 +45,7 @@ class ScanSensor extends BaseSensor {
     return list;
   }
 
-  _cidr2range(cidr) {
+  _cidr2range(cidr) { // does not yet work correctly (*.*.1.18/24 gets range of *.*.1.18 - *.*.2.something. instead of .0 - .255)
     const offset = 1 << 32 - parseInt(cidr.slice(cidr.indexOf('/') + 1, cidr.length))
     const startIp = this._ip2long(cidr.slice(0, cidr.indexOf('/')))
     const endIp = startIp + offset;
