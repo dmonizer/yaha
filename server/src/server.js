@@ -5,7 +5,7 @@ import ProxyAgent from "https-proxy-agent";
 import StateMachine from "./state.js"
 import Messages from "./Messages.js"
 import logger from "./server-components/logging.js"
-import sensorLoader from "./server-components/sensor-loader.js"
+import loadSensors from "./server-components/loadSensors.js"
 
 //const proxyAgent = new ProxyAgent('http://10.7.253.20:8080');
 
@@ -15,8 +15,8 @@ config.logger = logger;
 config.stateMachine = new StateMachine(new Messages());
 //config.proxyAgent = proxyAgent;
 
-const sensors = sensorLoader(config, logger)
-
+const sensors = loadSensors(config, logger)
+config.logger.info(`Loaded ${sensors.length} sensors.`)
 
 config.stateMachine.subscribe("sensors", (state) => {
   console.log("received SENSOR-STATE-CHANGE: ", state)
