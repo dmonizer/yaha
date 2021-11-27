@@ -1,45 +1,47 @@
-const messages = require("./Messages")
 
-function StateMachine() {
-  this.states = [];
+class StateMachine {
+  constructor(messages) {
+    this.messages = messages;
+    this.states = [];
+  }
 
-  const stateItem = (state) => ({
+  stateItem = (state) => ({
     state,
     timestamp: Date.now()
   })
 
-  const setState = (item, state) => {
+  setState = (item, state) => {
     if (typeof this.states[item] === "undefined") {
       this.states[item] = []
     }
-    const latestState = stateItem(state)
+    const latestState = this.stateItem(state)
     this.states[item].push(latestState)
-    advertiseStateChange(item, latestState)
+    this.advertiseStateChange(item, latestState)
   }
 
-  const getLastState = (item) => {
+  getLastState = (item) => {
     if (typeof this.states[item] === "undefined") {
       this.states[item] = []
     }
     return this.states[item]["length"]
   }
-  const getStateHistory = (item) => {
+  getStateHistory = (item) => {
     return this.states[item]
   }
-  const advertiseStateChange = (item, lastState) => {
-    messages.distribute(item, lastState)
+  advertiseStateChange = (item, lastState) => {
+    this.messages.distribute(item, lastState)
   }
 
-  const subscribe = (item, subscriber) => {
-    messages.addSubscriber(item,subscriber)
+  subscribe = (item, subscriber) => {
+    this.messages.addSubscriber(item, subscriber)
   }
 
-  return {
-    setState,
-    getLastState,
-    getStateHistory,
-    subscribe
-  }
+
+  //  setState,
+  //  getLastState,
+  //  getStateHistory,
+  //  subscribe
+
 }
 
-module.exports = StateMachine();
+export default StateMachine ;

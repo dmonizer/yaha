@@ -1,0 +1,1 @@
+// provide REST endpoint for setting/getting state and configuration items for sensors etc

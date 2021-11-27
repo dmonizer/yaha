@@ -6,9 +6,11 @@ class BaseSensor {
     this.self = {};
     this.self.name = name;
     this.self.interval = interval;
+    this.self.uuid = "flksdjglkdjglkdsfjglksjfd"
   }
   initialize(sensorApi) {
     this.api = sensorApi;
+    return { success: true, error: {} };
   }
 
   capabilities() {
@@ -21,4 +23,16 @@ class BaseSensor {
   end() {
     throw new Error("Method 'end()' must be implemented.");
   }
+
+  getName() {
+    return this.self.name
+  }
+  getUuid() {
+    return this.self.uuid;
+  }
+  getInterval() {
+    return this.self.interval;
+  }
 }
+
+export default BaseSensor

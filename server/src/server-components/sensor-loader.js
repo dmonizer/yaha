@@ -1,4 +1,8 @@
-const glob = require('glob');
+import glob from 'glob';
+import fetch from 'node-fetch';
+import path from 'path';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 const dummySensorConfigurationMap = [];
 const configurationMachine = function(uuid) {
@@ -14,83 +18,58 @@ const configurationMachine = function(uuid) {
 }
 
 const getFilename = (file) => {
-  const path = require('path');
   return path.basename(file)
 }
 
-const checkSensor = (sensorFile) => { // checks if sensor exports required methods
-
-  const sensorClass = require(sensorFile)
+const loadSensor = async (sensorFile) => {
+  const { default: sensorClass } = await import(sensorFile)
   const sensor = new sensorClass()
-  console.log("initialised sensor: "+sensor);
-  let error = "";
-
-  if (!sensor) {
-    error += "Cannot find/load sensor. Check for syntax errors and configuration location. "
-  }
-  else {
-    if (!sensor.run) {
-      error += "'run' method missing. "
-    }
-    if (!sensor.register) {
-      error += "'register' method missing. "
-    }
-    if (!sensor.initialize) {
-      error += "'initialize' method missing. "
-    }
-    if (!sensor.end) {
-      error += "'end' method missing. "
-    }
-    if (!sensor.name) {
-      error += "'name' property missing. "
-    }
-    if (!sensor.uuid) {
-      error += "'uuid' property missing. "
-    }
-  }
-
-  return (error === "") ? true : error + `Tried loading from ${sensorFile}.`;
+  return sensor;
 }
 
 const loadSensors = (config) => {
-  const {logger, stateMachine, proxyAgent} = config;
+  const { logger, stateMachine, proxyAgent } = config;
   const sensors = [];
   const sensorFileSpec = config.sensorsPath + '*.js';
   logger.info("Loading sensors from: " + sensorFileSpec)
   glob.sync(sensorFileSpec).forEach(function(file) {
     logger.info("Found sensor: " + file)
     const sensorFileName = getFilename(file);
-    stateMachine.setState("sensors", {"loadsensor": true, "sensorname": sensorFileName});
-    const checkResult = checkSensor(config.sensorsPath + sensorFileName);
-    if (checkResult !== true) {
-      logger.error(`Error loading sensor: (${sensorFileName}) - ${checkResult}`)
-      stateMachine.setState("sensors", {"initsensor": false, sensorname: sensorFileName, "error": "Error loading sensor"})
-      return
-    }
-    const sensor = require(config.sensorsPath + sensorFileName)
-    const sensorData = sensor.register()
-    // should check sensorData.uuid uniqueness here
+    stateMachine.setState("sensors", { "loadsensor": true, "sensorname": sensorFileName });
+
     const sensorApi = {
       proxyAgent,
-      setState: stateMachine.setState.bind(undefined, sensor.name),
-      config: configurationMachine(sensorData.uuid),
-      logger
+      logger,
+      capabilities: {
+        DISCOVERY: 1,
+        EXTERNAL_CONNECTION: 2,
+        STATE_CONSUMER: 3,
+        STATE_PRODUCER: 4
+      }
     }
+    const sensor = loadSensor(config.sensorsPath + sensorFileName)
+      .then(sensor => {
+        sensorApi.setState = stateMachine.setState.bind(undefined, sensor.getName());
+        sensorApi.config = configurationMachine(sensor.getUuid())
+        const sensorInitResult = sensor.initialize(sensorApi);
+        if (!sensorInitResult.success) {
+          logger.error("Error initializing sensor", sensorInitResult.error)
+          stateMachine.setState("sensors", { "initsensor": false, sensorname: sensorFileName, "error": sensorInitResult.error })
+        }
+        else {
+          sensors[sensor.getUuid()] = sensor;
+          setInterval(() => sensor.run(), sensor.getInterval() * 1000)
+          stateMachine.setState("sensors", { "initsensor": true, sensorname: file, "initresult": true })
+        }
+        return sensor;
+      })
 
-    const sensorInit = sensor.initialize(sensorApi);
-    if (!sensorInit.initSuccess) {
-      logger.info("Error initializing sensor", sensorInit.error)
-      stateMachine.setState("sensors", {"initsensor": false, sensorname: sensorFileName, "error": sensorInit.error})
-    }
-    else {
-      sensors[sensorData.uuid] = sensor;
-      setInterval(() => sensor.run(), sensorData.interval * 1000)
-      stateMachine.setState("sensors", {"initsensor": true, sensorname: file, "initresult": true})
-    }
+
+
   });
 
   return sensors;
 }
 
 
-module.exports = loadSensors
+export default loadSensors

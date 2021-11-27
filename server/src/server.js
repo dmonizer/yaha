@@ -1,27 +1,28 @@
 const config = {
-  sensorsPath: process.cwd() + "\\server\\sensors\\"
+  sensorsPath: process.cwd() + "/server/src/sensors/"
 }
-const ProxyAgent = require('https-proxy-agent')
-const stateMachine = require("./state")
-const proxyAgent = new ProxyAgent('http://10.7.253.20:8080');
-const logger = require("./server-components/logging")
-const sensorLoader = require("./server-components/sensor-loader")
+import ProxyAgent from "https-proxy-agent";
+import StateMachine from "./state.js"
+import Messages from "./Messages.js"
+//const proxyAgent = new ProxyAgent('http://10.7.253.20:8080');
+import logger from "./server-components/logging.js"
+import sensorLoader from "./server-components/sensor-loader.js"
 
 logger.info("Logging initialized")
 
 config.logger = logger;
-config.stateMachine = stateMachine;
-config.proxyAgent = proxyAgent;
+config.stateMachine = new StateMachine(new Messages());
+//config.proxyAgent = proxyAgent;
 
 const sensors = sensorLoader(config, logger)
 
 
-stateMachine.subscribe("sensors", (state) => {
+config.stateMachine.subscribe("sensors", (state) => {
   console.log("received SENSOR-STATE-CHANGE: ", state)
 })
 
-stateMachine.subscribe("APISENSOR", (state) => {
-  console.log("received API-STATE-CHANGE: ", state)
+config.stateMachine.subscribe("WeatherSensor", (state) => {
+  console.log("received WeatherSensor API-STATE-CHANGE: ", state)
 })
 
-setInterval(() => true, 2000)
+setInterval(() => console.log("."), 2000)

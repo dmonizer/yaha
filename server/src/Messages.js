@@ -1,23 +1,22 @@
-function Messages() {
+class  Messages {
+  constructor() {
   this.messageTypes = []
-  const addSubscriber = (messageType, subscriber) => {
+  }  
+
+  addSubscriber = (messageType, subscriber) => {
     if (typeof this.messageTypes[messageType] === "undefined") {
       this.messageTypes[messageType] = [];
     }
     this.messageTypes[messageType].push(subscriber)
   }
-  const hasSubscribers = (messageType) => {
+  hasSubscribers = (messageType) => {
     return (typeof this.messageTypes[messageType] !== "undefined") && (this.messageTypes[messageType].length > 0);
   }
-  const distribute = (messageType, message) => {
-    if (hasSubscribers(messageType)) {
+  distribute = (messageType, message) => {
+    if (this.hasSubscribers(messageType)) {
       this.messageTypes[messageType].map(subscriber => (typeof subscriber === "function") ? subscriber(message) : false)
     }
   }
-  return {
-    addSubscriber,
-    distribute
-  }
 }
 
-module.exports = Messages();
+export default Messages
