@@ -4,9 +4,10 @@ const config = {
 import ProxyAgent from "https-proxy-agent";
 import StateMachine from "./state.js"
 import Messages from "./Messages.js"
-//const proxyAgent = new ProxyAgent('http://10.7.253.20:8080');
 import logger from "./server-components/logging.js"
 import sensorLoader from "./server-components/sensor-loader.js"
+
+//const proxyAgent = new ProxyAgent('http://10.7.253.20:8080');
 
 logger.info("Logging initialized")
 

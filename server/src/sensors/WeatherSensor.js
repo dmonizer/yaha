@@ -29,7 +29,10 @@ export default class WeatherSensor extends BaseSensor {
     coordinates.map(coords => {
       this._getWeatherForCoordinates(coords)
         .then((result) => {
-          this.api.setState(this.getName(), { coords, temperatures:this._extractTemperatures(result) })
+          this.api.setState({ 
+            coords, 
+            locationName : result.location,
+            temperatures:this._extractTemperatures(result) })
         })
         
     })
@@ -39,8 +42,8 @@ export default class WeatherSensor extends BaseSensor {
   }
 
   _extractTemperatures(weather) {
-    console.log(weather)
-    return weather.forecast.tabular.time.map(hourly => hourly.temperature["@attributes"].value)
+    const timeSeries = weather.forecast.tabular.time
+    return timeSeries.map(hourly => hourly.temperature["@attributes"].value)
   }
 
   _getWeatherForCoordinates(coordinates) {
