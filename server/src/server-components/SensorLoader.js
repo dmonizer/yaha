@@ -48,7 +48,7 @@ export default class SensorLoader {
 
     const sensorApi = {
       proxyAgent: this.proxyAgent,
-      logger: this.logger,
+      logger: null,
       state: {
         set: null,
         subscribe: null,
@@ -72,6 +72,7 @@ export default class SensorLoader {
         }
 
         sensorApi.config = this.configurationMachine.getConfigurator(sensor.getUuid())
+        sensorApi.logger = this.sensorApi.createLogger(sensor.getName())
 
         const sensorInitResult = sensor.initialize(sensorApi);
 

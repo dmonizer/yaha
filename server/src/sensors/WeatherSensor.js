@@ -5,14 +5,14 @@ const COORDINATES_CONFIG_KEY = "coordinates-array"
 
 export default class WeatherSensor extends BaseSensor {
   constructor() {
-    super("WeatherSensor", 10);
+    super("WeatherSensor", 120);
   }
 
   capabilities() {
     if (!this.api) {
       return {}
     }
-    this.api.logger.debug("WeatherSensor capabilities()")
+    this.api.logger.debug("capabilities()")
 
     return {
       capabilities: [this.api.capabilities.DISCOVERY,
@@ -22,7 +22,7 @@ export default class WeatherSensor extends BaseSensor {
   }
 
   run() {
-    this.api.logger.debug("Starting WeatherSensor run()")
+    this.api.logger.debug("Starting run()")
     this.api.config.set(COORDINATES_CONFIG_KEY, ["59.4324376712365;24.7440656779973"])
     
     const coordinates = this.api.config.get(COORDINATES_CONFIG_KEY);
@@ -41,7 +41,7 @@ export default class WeatherSensor extends BaseSensor {
         })
         
     })
-    this.api.logger.debug("Ending WeatherSensor run()")
+    this.api.logger.debug("Ending run()")
   }
 
   end() {

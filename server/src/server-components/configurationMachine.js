@@ -15,11 +15,11 @@ export default class ConfigurationMachine {
         }
     }
     get(uuid, name) {
-        this.logger.debug("get",JSON.stringify({uuid, name}))
+        console.log("CONFIGMAP:",JSON.stringify(this.configurationMap))
         return this.configurationMap[uuid][name];
       }
-      set(uuid, name, value) {
+      set(uuid, name, value) {        
         this.logger.debug("set",JSON.stringify({uuid, name, value}))
-        this.configurationMap[uuid][name] = value;
+        this.configurationMap[uuid][name] = value;        
       }
 }

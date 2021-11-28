@@ -3,7 +3,7 @@ import winston from 'winston';
 const createLogger = (component) => {
   const logger = winston
     .createLogger({
-      level: 'info',
+      level: process.env.LOGLEVEL ? process.env.LOGLEVEL : 'info',
       format: winston.format.json(),
       defaultMeta: {
         component: component

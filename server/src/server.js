@@ -29,5 +29,7 @@ const sensors = sensorLoader.loadAllSensors()
 api.state.subscribe("WeatherSensor", (state) => {
   logger.debug("WeatherSensor state change: ", state)
 })
-
+api.state.subscribe("ApiDemoSensor", (state) => {
+  logger.debug("ApiDemoSensor state change: ", state)
+})
 setInterval(() => true, 2000)

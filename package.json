@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
+  
   "scripts": {
     "start": "node server/src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest server/test/**/*.js"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +20,8 @@
     "server-components": "^0.2.1",
     "state": "^0.2.0",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "jest" : "27.3.1"
   }
 }
