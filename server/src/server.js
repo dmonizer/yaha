@@ -1,29 +1,33 @@
-const config = {
-  sensorsPath: process.cwd() + "/server/src/sensors/"
-}
+const api = {}
+const sensorsPath = process.cwd() + "/server/src/sensors/"
+
 import ProxyAgent from "https-proxy-agent";
 import StateMachine from "./state.js"
 import Messages from "./Messages.js"
-import logger from "./server-components/logging.js"
-import loadSensors from "./server-components/loadSensors.js"
+import createLogger from "./server-components/logging.js"
+const logger = createLogger("server")
+logger.info("Starting YAHA")
+import ConfigurationMachine from './server-components/configurationMachine.js'
+import SensorLoader from "./server-components/SensorLoader.js"
 
-//const proxyAgent = new ProxyAgent('http://10.7.253.20:8080');
+if (process.env.PROXY) {
+  logger.info(`Configuring proxy from environment variable ${process.env.PROXY} `)
+  api.proxyAgent = new ProxyAgent(process.env.PROXY);
+}
 
-logger.info("Logging initialized")
+api.createLogger = createLogger;
+api.state = new StateMachine(new Messages());
+const configurationMachine = new ConfigurationMachine(api.createLogger);
+const sensorLoader = new SensorLoader(sensorsPath, api, configurationMachine)
 
-config.logger = logger;
-config.stateMachine = new StateMachine(new Messages());
-//config.proxyAgent = proxyAgent;
-
-const sensors = loadSensors(config, logger)
-config.logger.info(`Loaded ${sensors.length} sensors.`)
-
-config.stateMachine.subscribe("sensors", (state) => {
-  console.log("received SENSOR-STATE-CHANGE: ", state)
+api.state.subscribe(sensorLoader.getName(), (state) => {
+  logger.debug("sensor state changed: ", state)
 })
 
-config.stateMachine.subscribe("WeatherSensor", (state) => {
-  console.log("received WeatherSensor API-STATE-CHANGE: ", state)
+const sensors = sensorLoader.loadAllSensors()
+
+api.state.subscribe("WeatherSensor", (state) => {
+  logger.debug("WeatherSensor state change: ", state)
 })
 
-setInterval(() => console.log("."), 2000)
+setInterval(() => true, 2000)

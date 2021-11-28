@@ -1,16 +1,20 @@
 class BaseSensor {
-  constructor(name, interval) {
+  constructor(name, interval, uuid = this._createUuid()) {
     if (this.constructor === BaseSensor) {
       throw new Error("BaseSensor is abstract and cannot be instantiated directly");
     }
     this.self = {};
     this.self.name = name;
     this.self.interval = interval;
-    this.self.uuid = "flksdjglkdjglkdsfjglksjfd"
+    this.self.uuid = uuid;
   }
   initialize(sensorApi) {
     this.api = sensorApi;
-    return { success: true, error: {} };
+    this.api.logger.info(`Sensor ${this.getName()} initialized`)
+    return {
+      success: true,
+      error: {}
+    };
   }
 
   capabilities() {
@@ -32,6 +36,17 @@ class BaseSensor {
   }
   getInterval() {
     return this.self.interval;
+  }
+
+  _createUuid() {
+    return [...Array(8).keys()].map(() => {
+      let item = ""
+      for (; item.length < 4;) {
+        item += String.fromCharCode(65 + Math.random() * 10)
+      }
+      return item
+    }).join('-')
+
   }
 }
 

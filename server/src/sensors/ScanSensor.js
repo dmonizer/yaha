@@ -6,6 +6,7 @@ class ScanSensor extends BaseSensor {
   constructor() {
     super("ScanSensor", 60);
     this.multipliers = [0x1000000, 0x10000, 0x100, 1];
+    this.x = y;
   }
 
   capabilities() {

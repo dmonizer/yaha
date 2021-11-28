@@ -12,6 +12,7 @@ export default class WeatherSensor extends BaseSensor {
     if (!this.api) {
       return {}
     }
+    this.api.logger.debug("WeatherSensor capabilities()")
 
     return {
       capabilities: [this.api.capabilities.DISCOVERY,
@@ -21,21 +22,26 @@ export default class WeatherSensor extends BaseSensor {
   }
 
   run() {
+    this.api.logger.debug("Starting WeatherSensor run()")
     this.api.config.set(COORDINATES_CONFIG_KEY, ["59.4324376712365;24.7440656779973"])
+    
     const coordinates = this.api.config.get(COORDINATES_CONFIG_KEY);
+    
     if (!coordinates || !coordinates.length > 0) {
       return
     }
+
     coordinates.map(coords => {
       this._getWeatherForCoordinates(coords)
         .then((result) => {
-          this.api.setState({ 
+          this.api.state.set({ 
             coords, 
             locationName : result.location,
             temperatures:this._extractTemperatures(result) })
         })
         
     })
+    this.api.logger.debug("Ending WeatherSensor run()")
   }
 
   end() {
