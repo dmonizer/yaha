@@ -29,7 +29,6 @@ export default class ApiDemoSensor extends BaseSensor {
             } : {})
             .then((result) => result.ok ? result.json() : new Error(result.error()))
             .then(json => { 
-                //this.api.logger.info("User " + json.data.first_name + " " + json.data.last_name + " logged in."); 
                 this.api.state.set("User " + json.data.first_name + " " + json.data.last_name + " logged in.") })
             .catch((err) => 
             this.api.logger.error(JSON.stringify(err)));
