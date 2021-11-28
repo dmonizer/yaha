@@ -1,5 +1,4 @@
 
-
 export default class ConfigurationMachine {
     constructor(createLogger) {
         this.configurationMap = []; // this will probably be some DB (mongo?)
@@ -15,7 +14,6 @@ export default class ConfigurationMachine {
         }
     }
     get(uuid, name) {
-        console.log("CONFIGMAP:",JSON.stringify(this.configurationMap))
         return this.configurationMap[uuid][name];
       }
       set(uuid, name, value) {        
