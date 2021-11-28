@@ -7,7 +7,7 @@ import Messages from "./Messages.js"
 import createLogger from "./server-components/logging.js"
 const logger = createLogger("server")
 logger.info("Starting YAHA")
-import ConfigurationMachine from './server-components/configurationMachine.js'
+import ConfigurationMachine from './server-components/ConfigurationMachine.js'
 import SensorLoader from "./server-components/SensorLoader.js"
 
 if (process.env.PROXY) {

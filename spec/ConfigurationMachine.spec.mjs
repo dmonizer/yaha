@@ -1,4 +1,4 @@
-import ConfigurationMachine from "../server/src/server-components/configurationMachine.js";
+import ConfigurationMachine from "../server/src/server-components/ConfigurationMachine.js";
 
 describe("ConfigurationMachine", function () {
     const createLoggerMock = () => ({
