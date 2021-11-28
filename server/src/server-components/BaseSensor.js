@@ -41,7 +41,7 @@ class BaseSensor {
   _createUuid() {
     return [...Array(8).keys()].map(() => {
       let item = ""
-      for (; item.length < 4;) {
+      while (item.length < 4) {
         item += String.fromCharCode(65 + Math.random() * 10)
       }
       return item
