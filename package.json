@@ -21,6 +21,6 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "jasmine": "^3.10.0",
+    "jasmine": "^3.10.0"
   }
 }

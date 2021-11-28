@@ -2,9 +2,9 @@ const api = {}
 const sensorsPath = process.cwd() + "/server/src/sensors/"
 
 import ProxyAgent from "https-proxy-agent";
-import StateMachine from "./state.js"
-import Messages from "./Messages.js"
-import createLogger from "./server-components/logging.js"
+import StateMachine from "./server-components/StateMachine.js"
+import Messages from "./server-components/Messages.js"
+import createLogger from "./server-components/createLogger.js"
 const logger = createLogger("server")
 logger.info("Starting YAHA")
 import ConfigurationMachine from './server-components/ConfigurationMachine.js'
