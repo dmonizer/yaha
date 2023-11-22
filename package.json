@@ -4,7 +4,7 @@
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
   "scripts": {
-    "start": "node server/src/server.js",
+    "startServer": "node server/src/server.js",
     "test": "jasmine"
   },
   "keywords": [],
