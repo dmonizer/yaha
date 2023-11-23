@@ -11,7 +11,10 @@ idea is to have
 # How to install
 
 git clone
+
 npm i
+
 npm run startServer
+
 
 open frontend/index.html in browser.
