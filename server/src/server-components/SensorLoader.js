@@ -65,6 +65,7 @@ export default class SensorLoader {
             logger: null,
             state: {
                 set: null,
+                get: null,
                 subscribe: null,
                 unsubscribe: null
             },
@@ -82,6 +83,7 @@ export default class SensorLoader {
             .then(sensor => {
                 sensorApi.state = {
                     set: this.state.setState.bind(undefined, sensor.getName()),
+                    get: this.state.getLastState.bind(undefined, sensor.getName()),
                     subscribe: this.state.subscribe,
                     unsubscribe: this.state.unsubscribe
                 }

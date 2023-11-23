@@ -4,6 +4,8 @@ import MessageDistributor from "./server-components/MessageDistributor.js"
 import Logger from "./server-components/Logger.js"
 import ConfigurationMachine from './server-components/ConfigurationStore.js'
 import SensorLoader from "./server-components/SensorLoader.js"
+import FrontendWebsocket from "./server-components/frontend/FrontendWebsocket.js"
+
 import YAHA_CONFIGURATION from "./server-components/model/configuration-constants.js";
 
 const api = {}
@@ -43,4 +45,7 @@ api.state.subscribe("WeatherSensor", (state) => {
 api.state.subscribe("ApiDemoSensor", (state) => {
     log.debug("ApiDemoSensor state change: ", state)
 })
+
+const frontendSockets = new FrontendWebsocket(9991, api.state, logger.createLogger("FrontendWebsocket"))
+
 setInterval(() => true, 2000)

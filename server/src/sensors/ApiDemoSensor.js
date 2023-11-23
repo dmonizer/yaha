@@ -1,6 +1,10 @@
 import BaseSensor from "../server-components/BaseSensor.js";
 import fetch from "node-fetch";
 
+const ACTIONS = {
+    LOGGED: {stateName: 'logged'},
+    HOME: {stateName: 'home'}
+}
 /**
  * This is a demo sensor that calls external api and updates state based on that, simulating users logging in/out and coming home/leaving home
  */
@@ -11,6 +15,12 @@ export default class ApiDemoSensor extends BaseSensor {
 
     sensorInit() {
         this.api.config.set("url", "https://reqres.in/api/users/") // illustrating configuration saving.
+        const initialState = {};
+        Object.getOwnPropertyNames(ACTIONS).forEach(actionName => {
+            const name = ACTIONS[actionName].stateName;
+            initialState[name] = []
+        })
+        this.api.state.set(initialState);
     }
 
     capabilities() {
@@ -33,7 +43,20 @@ export default class ApiDemoSensor extends BaseSensor {
         } : {})
             .then((result) => result.ok ? result.json() : new Error(result.error()))
             .then(json => {
-                this.api.state.set("User " + json.data.first_name + " " + json.data.last_name + [" logged in.", " logged out.", " is at home.", " left home."][this._randomIntBetween(0, 3)])
+                const action = ACTIONS[Object.getOwnPropertyNames(ACTIONS)[this._randomIntBetween(0, 1)]];
+                const currentState = this.api.state.get();
+
+                const persons = currentState.state[action.stateName]
+                const person = json.data.first_name + " " + json.data.last_name;
+                if (persons.indexOf(person) === -1) {
+                    persons.push(person)
+                    this.api.logger.info(`${person} added to ${action.stateName}`)
+                } else {
+                    persons.splice(persons.indexOf(person), 1)
+                    this.api.logger.info(`${person} removed from ${action.stateName}`)
+                }
+                currentState.state[action.stateName] = persons;
+                this.api.state.set(currentState.state);
             })
             .catch((err) => this.api.logger.error(JSON.stringify(err)));
         this.api.logger.debug("Ending run()")

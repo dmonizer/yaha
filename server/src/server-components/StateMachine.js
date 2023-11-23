@@ -22,7 +22,10 @@ export default class StateMachine {
         if (typeof this.states[item] === "undefined") {
             this.states[item] = []
         }
-        return this.states[item]["length"]
+        const stateItemCount = this.states[item].length;
+        if (stateItemCount>0) {
+            return this.states[item][stateItemCount - 1]
+        }
     }
     getStateHistory = (item) => {
         return this.states[item]
