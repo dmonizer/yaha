@@ -6,3 +6,12 @@ idea is to have
  - a central server (js) running different sensors (js) which load data from wherever (web, mqtt, bluetooth, whatnot) and publish state back to server.
  - separate backend component, which serves states as an REST(?) or websockets? to
  - frontend (of which there can be multiple then - web, app(s), console etc)
+
+
+# How to install
+
+git clone
+npm i
+npm run startServer
+
+open frontend/index.html in browser.
