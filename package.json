@@ -1,6 +1,6 @@
 {
   "name": "yaha",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "test": "jasmine"
   },
   "keywords": [],
-  "author": "",
+  "author": "dmonizer <dmonizer@github.com>",
   "license": "ISC",
   "dependencies": {
     "fetch": "^1.1.0",
@@ -22,5 +22,6 @@
   },
   "devDependencies": {
     "jasmine": "^3.10.0"
-  }
+  },
+  "repository": "https://github.com/dmonizer/yaha"
 }
