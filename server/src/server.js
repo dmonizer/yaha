@@ -5,6 +5,7 @@ import Logger from "./server-components/Logger.js"
 import ConfigurationMachine from './server-components/ConfigurationStore.js'
 import SensorLoader from "./server-components/SensorLoader.js"
 import FrontendWebsocket from "./server-components/frontend/FrontendWebsocket.js"
+import PluginLoader from "./server-components/PluginLoader.js"
 
 import YAHA_CONFIGURATION from "./server-components/model/configuration-constants.js";
 
@@ -46,6 +47,9 @@ api.state.subscribe("ApiDemoSensor", (state) => {
     log.debug("ApiDemoSensor state change: ", state)
 })
 
+
 const frontendSockets = new FrontendWebsocket(9991, api.state, logger.createLogger("FrontendWebsocket"))
+
+const pluginLoader = new PluginLoader(YAHA_CONFIGURATION.PLUGIN_PATHS)
 
 setInterval(() => true, 2000)

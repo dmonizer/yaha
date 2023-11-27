@@ -27,6 +27,8 @@ const YAHA_CONFIGURATION = {
             key: "distance-units",
             ...METRIC_UNITS.DISTANCE
         },
-    SENSOR_PATHS : ["/server/src/sensors/"]
+    SENSOR_PATHS : ["/server/src/sensors/"],
+    PLUGIN_PATHS : ["/server/src/server-components/plugins/"]
+
 }
 export default YAHA_CONFIGURATION

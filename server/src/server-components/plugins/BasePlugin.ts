@@ -14,11 +14,11 @@ enum PluginCapabilities {
 
 interface PluginInfo {
     pluginClass: PluginClass,
-    name: String,
-    author: String,
-    organization: String,
-    documentationUrl: String,
-    version: { major: Number, minor: Number, patch: Number },
+    name: string,
+    author: string,
+    organization: string,
+    documentationUrl: string,
+    version: { major: number, minor: number, patch: number },
     capabilities: Set<PluginCapabilities>
 
 }
@@ -27,4 +27,3 @@ abstract class BasePlugin {
     abstract init() : PluginInfo;
     abstract run():any;
 }
-
