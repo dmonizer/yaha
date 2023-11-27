@@ -23,6 +23,11 @@ export default class ConfigurationStore {
         }
     }
 
+    /**
+     * Get access to whole state database
+     * @param callerName
+     * @returns {function(*): {set: *, get: *, delete: *}}
+     */
     getFullConfigurator = (callerName) => {
         if (!callerName) {
             this.logger.error("Please specify callerName for getFullConfigurator")
