@@ -1,11 +1,14 @@
 import glob from 'glob';
+import {BasePlugin} from "./plugins/BasePlugin";
 
 export default class PluginLoader {
     private loaded_plugins: BasePlugin[] = [];
 
     constructor(pluginPaths: string[]) {
-
+        console.log(__dirname)
+        console.log(pluginPaths)
         this.loadPlugins(pluginPaths);
+        console.log(this.loaded_plugins)
     }
 
     private async loadPlugins(pluginPaths: string[]) {
@@ -16,7 +19,9 @@ export default class PluginLoader {
 
     private resolveWildcard(path: string): string[] {
         const pluginFile = this.ensureTrailingSlash(path) + '*.js';
-        return glob.sync(pluginFile)
+        const retVal = glob.sync(pluginFile)
+        console.log(retVal)
+        return retVal;
     }
 
     private loadPluginsFrom(pluginPath: string): Promise<BasePlugin>[] {

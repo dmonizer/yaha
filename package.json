@@ -4,7 +4,7 @@
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
   "scripts": {
-    "startServer": "node server/src/server.js",
+    "startServer": "ts-node server/src/server2.ts",
     "test": "jasmine"
   },
   "keywords": [],
@@ -22,7 +22,14 @@
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
-    "jasmine": "^3.10.0"
+    "jasmine": "^3.10.0",
+    "bun-types": "latest",
+    "ts-node": "^10.9.1",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.2"
   },
-  "repository": "https://github.com/dmonizer/yaha"
+  "repository": "https://github.com/dmonizer/yaha",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

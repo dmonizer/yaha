@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "src/server2.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,4 +14,5 @@
     "node-port-scanner": "^3.0.1",
     "ws": "^8.14.2"
   }
+
 }

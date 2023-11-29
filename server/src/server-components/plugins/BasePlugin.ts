@@ -1,10 +1,10 @@
-enum PluginClass {
+export enum PluginClass {
     SENSOR,
     PLUGIN,
     CORE
 }
 
-enum PluginCapabilities {
+export enum PluginCapabilities {
     EXTERNAL_CONNECTION,
     STATE_PRODUCER,
     USER_CONFIGURABLE,
@@ -12,7 +12,7 @@ enum PluginCapabilities {
     SCHEDULED_RUN
 }
 
-interface PluginInfo {
+export interface PluginInfo {
     pluginClass: PluginClass,
     name: string,
     author: string,
@@ -23,7 +23,7 @@ interface PluginInfo {
 
 }
 
-abstract class BasePlugin {
+export abstract class BasePlugin {
     abstract init() : PluginInfo;
     abstract run():any;
 }

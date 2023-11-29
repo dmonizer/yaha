@@ -5,7 +5,7 @@ import Logger from "./server-components/Logger.js"
 import ConfigurationMachine from './server-components/ConfigurationStore.js'
 import SensorLoader from "./server-components/SensorLoader.js"
 import FrontendWebsocket from "./server-components/frontend/FrontendWebsocket.js"
-import PluginLoader from "./server-components/PluginLoader.js"
+import PluginLoader from "./server-components/PluginLoader.ts"
 
 import YAHA_CONFIGURATION from "./server-components/model/configuration-constants.js";
 

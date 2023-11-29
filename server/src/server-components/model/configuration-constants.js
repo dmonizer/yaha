@@ -1,34 +1,33 @@
-const METRIC_UNITS = {
-    TEMPERATURE : {
-        symbol : "C",
-        name : "Celsius"
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.YAHA_CONFIGURATION = exports.IMPERIAL_UNITS = exports.METRIC_UNITS = void 0;
+exports.METRIC_UNITS = {
+    TEMPERATURE: {
+        symbol: "C",
+        name: "Celsius"
     },
-    DISTANCE : {
-        name : "SI"
+    DISTANCE: {
+        name: "SI"
     }
-}
-
-const IMPERIAL_UNITS = {
-    TEMPERATURE : {
-        symbol : "F",
-        name : "Fahrenheit"
+};
+exports.IMPERIAL_UNITS = {
+    TEMPERATURE: {
+        symbol: "F",
+        name: "Fahrenheit"
     },
-    DISTANCE : {
-        name : "Imperial"
+    DISTANCE: {
+        name: "Imperial"
     }
-}
-
-const YAHA_CONFIGURATION = {
-        TEMPERATURE_UNITS : {
-            key : "temp-units",
-            ...METRIC_UNITS.TEMPERATURE
-        },
-        DISTANCE_UNITS : {
-            key: "distance-units",
-            ...METRIC_UNITS.DISTANCE
-        },
-    SENSOR_PATHS : ["/server/src/sensors/"],
-    PLUGIN_PATHS : ["/server/src/server-components/plugins/"]
-
-}
-export default YAHA_CONFIGURATION
+};
+exports.YAHA_CONFIGURATION = {
+    TEMPERATURE_UNITS: {
+        key: "temp-units",
+        ...exports.METRIC_UNITS.TEMPERATURE
+    },
+    DISTANCE_UNITS: {
+        key: "distance-units",
+        ...exports.METRIC_UNITS.DISTANCE
+    },
+    SENSOR_PATHS: ["/server/src/sensors/"],
+    PLUGIN_PATHS: ["/Users/erik.suit/Development/personal/yaha/server/src/server-components/plugins"]
+};
