@@ -1,5 +1,7 @@
 const REQUIRED_IMPLEMENTATIONS = ["capabilities", "run", "end"]
 export default class BaseSensor {
+    private self;
+    private api;
     constructor(name, activation = {
         interval: undefined,
         cron: undefined, /* *TODO*
@@ -36,6 +38,7 @@ export default class BaseSensor {
         };
     }
 
+    sensorInit() {}
     capabilities() {
         throw new Error("Method 'capabilities()' must be implemented.");
     }

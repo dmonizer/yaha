@@ -1,15 +1,19 @@
+import ConfigurationStore from "./ConfigurationStore";
+import MessageDistributor from "./MessageDistributor";
+
 export default class StateMachine {
-    constructor(config, messageDistributor) {
-        this.states = [];
+    private states: any[keyof string] = [];
+    private messageDistributor;
+    constructor(config : ConfigurationStore, messageDistributor: MessageDistributor) {
         this.messageDistributor = messageDistributor;
     }
 
-    stateItem = (state) => ({
+    stateItem = (state:any) => ({
         state,
         timestamp: Date.now()
     })
 
-    setState = (item, state) => {
+    setState = (item:string, state:any) => {
         if (typeof this.states[item] === "undefined") {
             this.states[item] = []
         }
@@ -18,7 +22,7 @@ export default class StateMachine {
         this.advertiseStateChange(item, latestState)
     }
 
-    getLastState = (item) => {
+    getLastState = (item:string) => {
         if (typeof this.states[item] === "undefined") {
             this.states[item] = []
         }
@@ -27,14 +31,14 @@ export default class StateMachine {
             return this.states[item][stateItemCount - 1]
         }
     }
-    getStateHistory = (item) => {
+    getStateHistory = (item:string) => {
         return this.states[item]
     }
-    advertiseStateChange = (item, lastState) => {
+    advertiseStateChange = (item:string, lastState:any) => {
         this.messageDistributor.distribute(item, lastState)
     }
 
-    subscribe = (item, subscriber) => {
+    public subscribe (item:string, subscriber : Function) {
         this.messageDistributor.addSubscriber(item, subscriber)
     }
 

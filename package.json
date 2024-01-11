@@ -4,29 +4,24 @@
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
   "scripts": {
-    "startServer": "ts-node server/src/server2.ts",
+    "startServer": "ts-node server/src/server.ts",
     "test": "jasmine"
   },
   "keywords": [],
   "author": "dmonizer <dmonizer@github.com>",
   "license": "ISC",
   "dependencies": {
-    "fetch": "^1.1.0",
-    "glob": "^7.1.7",
-    "https-proxy-agent": "^5.0.0",
-    "node-fetch": "^3.1.0",
-    "node-port-scanner": "^3.0.1",
-    "server-components": "^0.2.1",
-    "state": "^0.2.0",
-    "winston": "^3.3.3"
+    "dotenv": "^16.3.1",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
+    "@types/ws": "^8.5.10",
     "jasmine": "^3.10.0",
-    "bun-types": "latest",
-    "ts-node": "^10.9.1",
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.2"
+    "ts-node": "^10.9.2",
+    "@types/node": "^20.10.8",
+    "typescript": "^5.3.3",
+    "proxy-agent": "^6.3.1"
   },
   "repository": "https://github.com/dmonizer/yaha",
   "peerDependencies": {

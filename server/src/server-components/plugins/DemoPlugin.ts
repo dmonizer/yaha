@@ -1,5 +1,8 @@
-import {BasePlugin, PluginCapabilities, PluginClass, PluginInfo} from "./BasePlugin";
+import {BasePlugin, PluginCapabilities, PluginClass, PluginInfo} from "../BasePlugin";
 export default class DemoPlugin extends BasePlugin {
+    constructor() {
+        super();
+    }
     init(): PluginInfo {
         return {
             author: "Erik Suit",

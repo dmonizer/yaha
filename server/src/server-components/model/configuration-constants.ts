@@ -18,16 +18,15 @@ export const IMPERIAL_UNITS = {
     }
 }
 
-export const YAHA_CONFIGURATION = {
-    TEMPERATURE_UNITS : {
+export const YAHA_CONFIGURATION  = new Map([
+    ["TEMPERATURE_UNITS", {
         key : "temp-units",
         ...METRIC_UNITS.TEMPERATURE
-    },
-    DISTANCE_UNITS : {
+    }],
+    ["DISTANCE_UNITS", {
         key: "distance-units",
         ...METRIC_UNITS.DISTANCE
-    },
-    SENSOR_PATHS : ["/server/src/sensors/"],
-    PLUGIN_PATHS : ["/Users/erik.suit/Development/personal/yaha/server/src/server-components/plugins"]
-
-}
+    }],
+    ["SENSOR_PATHS", ["/server/src/sensors/"]],
+    ["PLUGIN_PATHS", ["/Users/erik.suit/Development/personal/yaha/server/src/server-components/plugins"]]]
+);
