@@ -1,6 +1,6 @@
 import {MessageEvent, WebSocket, WebSocketServer} from 'ws';
-import StateMachine from "../StateMachine";
-import {Logger} from "../../logger";
+import StateMachine, {FullState} from "../StateMachine";
+import {Logger} from "../utilities/logger";
 
 export default class FrontendWebsocket {
     private log;
@@ -10,11 +10,11 @@ export default class FrontendWebsocket {
     private encoder;
     private decoder;
 
-    constructor(port: number, stateMachine: StateMachine) {
+    constructor(port: number, state: FullState) {
         this.log = Logger("FrontEndWebsocket");
         const listeningPort = port ? port:8080;
         this.wss = new WebSocketServer({port: listeningPort});
-        this.stateMachine = stateMachine;
+        this.stateMachine = state;
         this.connections = [];
         this.encoder = new TextEncoder()
         this.decoder = new TextDecoder()

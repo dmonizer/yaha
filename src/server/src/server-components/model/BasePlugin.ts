@@ -1,8 +1,5 @@
-export enum PluginClass {
-    SENSOR,
-    PLUGIN,
-    CORE
-}
+import {Logger} from "../utilities/logger";
+
 
 export enum PluginCapabilities {
     EXTERNAL_CONNECTION,
@@ -13,17 +10,19 @@ export enum PluginCapabilities {
 }
 
 export interface PluginInfo {
-    pluginClass: PluginClass,
     name: string,
     author: string,
     organization: string,
     documentationUrl: string,
     version: { major: number, minor: number, patch: number },
-    capabilities: Set<PluginCapabilities>
-
 }
 
-export abstract class BasePlugin {
-    abstract init() : PluginInfo;
-    abstract run():any;
+const log = Logger("BasePlugin")
+export class BasePlugin {
+    protected _name: string = "";
+    constructor(name: string) { this._name = name; }
+    public register(){
+        log.debug(`Registering ${this.name}`)
+    }
+    get name(): string { return this._name; }
 }

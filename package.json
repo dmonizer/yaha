@@ -5,14 +5,20 @@
   "main": "server/src/server.js",
   "scripts": {
     "startServer": "ts-node server/src/server.ts",
-    "test": "jasmine"
+    "test": "jasmine",
+    "devServer": "nodemon --watch 'src/server/src/**/*.ts' --exec yarn run buildTsNode",
+    "buildTsNode": "yarn run build && ts-node src/server/src/server.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "dmonizer <dmonizer@github.com>",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "ws": "^8.16.0"
+    "ws": "^8.16.0",
+    "node-fetch": "^3.3.2",
+    "glob": "^10.3.10"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -26,5 +32,40 @@
   "repository": "https://github.com/dmonizer/yaha",
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0 <22.0.0"
+  },
+  "settings": {
+    "noInlineConfig": true,
+    "node": {
+      "tryExtensions": [
+        ".js",
+        ".ts",
+        ".d.ts"
+      ],
+      "moduleDirectory": [
+        "node_modules",
+        "src/"
+      ]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".js",
+          ".ts",
+          ".d.ts"
+        ],
+        "moduleDirectory": [
+          "node_modules",
+          "src/"
+        ],
+        "typescript": {}
+      },
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "."
+      }
+    }
   }
 }

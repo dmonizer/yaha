@@ -1,4 +1,5 @@
-import {Logger} from "../logger";
+import {Logger} from "./utilities/logger";
+const log = Logger("ConfigurationStore")
 
 export type SubscriberFunction = (key: string, value: any, caller: string) => void
 export interface SingleConfigurationStore {
@@ -8,11 +9,10 @@ export interface SingleConfigurationStore {
     subscribe: (subscriber: SubscriberFunction) => void
 }
 export default class ConfigurationStore {
-    private log
     private store: Map<number, Map<string, any>> = new Map()
+    private owners : string[] = new Array<string>()
 
     constructor() {
-        this.log = Logger("ConfigurationStore");
         // This is a "in-memory" configuration store - meant as an initial development tool.
         // in real life, this should be held in an actual database
         // TODO:
@@ -22,7 +22,10 @@ export default class ConfigurationStore {
         this.store = this.loadStore();
     }
 
-    getConfiguratorFor = (id: number, name: string) : SingleConfigurationStore => { // returns configurator, which is limited to seeing only items in its "own" store, identified by ID. Meant for sensors
+    getConfiguratorFor = (name:string) : SingleConfigurationStore => { // returns configurator, which is limited to seeing only items in its "own" store. Meant for sensors
+        const id = this.owners.push(name)-1;
+        log.debug(`getConfiguratorFor ${name} - ID = ${id}`);
+
         if (!this.store.get(id)) {
             this.store.set(id, new Map<string, string>());
         }
@@ -41,7 +44,7 @@ export default class ConfigurationStore {
      */
     getFullConfigurator = (callerName: string) => {
         if (!callerName) {
-            this.log.error("Please specify callerName for getFullConfigurator")
+            log.error("Please specify callerName for getFullConfigurator")
         }
         return (configId: number) => {
             return {
@@ -61,14 +64,14 @@ export default class ConfigurationStore {
 
     get = (id: number, key: string) => {
         let value = this.store.get(id)?.get(key);
-        this.log.debug(`Returning '${key}' = '${value}' for ${id}`);
+        log.debug(`Returning '${key}' = '${value}' for ${this.owners[id]}(${id})`);
         return value;
     }
 
     set = (id: number, key: string, value: any) => {
-        this.log.debug(`Setting '${key}' = '${value}' for ${id}`);
+        log.debug(`Setting '${key}' = '${value}' for ${this.owners[id]}(${id})`);
         if (!key) {
-            throw new Error(`Invalid (empty) key for ${id}`);
+            throw new Error(`Invalid (empty) key for ${this.owners[id]}(${id})`);
         }
         if (key[0]==="_") {
             throw new Error(`Property names beginning with underscore are for internal use, change is not allowed.`)
@@ -86,15 +89,16 @@ export default class ConfigurationStore {
     }
 
     delete = (id: number, key: string) => {
-        this.log.debug(`Deleting '${key}' for ${id}`);
+        log.debug(`Deleting '${key}' for ${this.owners[id]}(${id})`);
         this.store.get(id)?.delete(key);
     }
 
     saveStore = () => {
-
+        log.warn("Store saving not yet implemented")
     }
 
     loadStore = () => {
+        log.warn("Store loading not yet implemented")
         return new Map();
     }
 }

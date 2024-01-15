@@ -1,0 +1,89 @@
+import BaseSensor, {SensorCapabilities, SensorCapability} from "../server-components/BaseSensor.js";
+import {Log, Logger} from "../logger";
+import {randomIntBetween} from "../server-components/Utilities";
+
+const ACTIONS = new Map(
+        [
+            ["LOGGED", {stateName: 'logged'}],
+            ["HOME", {stateName: 'home'}]
+        ])
+
+
+/**
+ * This is a demo sensor that calls external api and updates state based on that, simulating users logging in/out and coming home/leaving home
+ */
+export default class ApiDemoSensor extends BaseSensor {
+    private log: Log = Logger("ApiDemoSensor");
+    constructor() {
+        super("ApiDemoSensor", {interval: 5})
+        this.log.info("ApiDemoSensor created")
+    }
+
+    sensorInit() {
+        if (!this.api) {
+            throw new Error("api is required")
+        }
+        this.api.config.set("url", "https://reqres.in/api/users/") // illustrating configuration saving.
+        const initialState: Map<string, string[]> = new Map();
+        ACTIONS.forEach((value, index) => {
+            const name = value.stateName;
+            initialState.set(name, [])
+        })
+        this.api.state.set(initialState);
+        this.log.info("init done")
+    }
+
+    capabilities():SensorCapabilities {
+        if (!this.api) {
+            throw new Error('api is required')
+        }
+        this.log.debug(this.getName() + " capabilities()")
+        return [SensorCapability.EXTERNAL_CONNECTION, SensorCapability.STATE_PRODUCER]
+    }
+
+    async run() {
+        if (!this.api) {
+            throw new Error("api is required")
+        }
+        const url = this.api.config.get("url") + randomIntBetween(1, 6);
+
+        this.log.debug("Starting run() with url " + url);
+        (await import('node-fetch').then(({default:fetch})=>fetch))(url /*, this.api.proxyAgent ? {
+            agent: this.api.proxyAgent
+        }:{}*/)
+                .then((result) => result.ok ? result.json():new Error(result.statusText))
+                .then(json => {
+                    const action = ACTIONS.get(Array.from(ACTIONS.keys())[randomIntBetween(0, 1)]);
+                    const currentState = this.api?.state.get();
+                    if (!action) {
+                        throw new Error(`Action not found: ${Array.from(ACTIONS.keys())[randomIntBetween(0, 1)]}`)
+                    }
+                    const persons = currentState.state[action.stateName]
+                    const {first_name, last_name} = (json as {data : {
+                        first_name: string,
+                            last_name: string
+                        }}).data
+                    if (!first_name || !last_name) {
+                        throw new Error(`did not get first or last name from ${json}`)
+                    }
+                    const person = first_name + " " + last_name;
+                    if (persons.indexOf(person)=== -1) {
+                        persons.push(person)
+                        this.log.info(`${person} added to ${action.stateName}`)
+                    } else {
+                        persons.splice(persons.indexOf(person), 1)
+                        this.log.info(`${person} removed from ${action.stateName}`)
+                    }
+                    currentState.state[action.stateName] = persons;
+                    this.api?.state.set(currentState.state);
+                })
+                .catch((err) => this.log.error(JSON.stringify(err)));
+        this.log.debug("Ending run()")
+    }
+
+    end() {
+
+    }
+
+
+}

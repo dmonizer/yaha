@@ -1,4 +1,4 @@
-import PortScanner from 'node-port-scanner';
+//import PortScanner from 'node-port-scanner';
 import BaseSensor  from "../server-components/BaseSensor.js";
 import os from 'os';
 
