@@ -9,6 +9,7 @@ idea is to have
  - (at least in the beginning) it has limited sensor hardware support - ie what Zigbee2Mqtt supports, Yaha supports.
  - - maybe use other "gateways"2Mqtt as well, such as:
    - https://github.com/devbis/ble2mqtt (or https://github.com/shmuelzon/esp32-ble2mqtt)
+   - https://github.com/zwave-js/zwave-js-ui
    - https://docs.openmqttgateway.com/
    - https://github.com/SMerrony/daikin2mqtt
    - https://github.com/gysmo38/mitsubishi2MQTT
