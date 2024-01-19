@@ -13,7 +13,7 @@ export default class DemoPlugin extends BasePlugin {
         }
     }
 
-    run(): any {
+    async run() {
         return "";
     }
 }

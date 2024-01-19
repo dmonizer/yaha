@@ -1,4 +1,5 @@
 import {Logger} from "../utilities/logger";
+import {IsolatedApiConfigBase} from "./ApiConfigBase";
 
 
 export enum PluginCapabilities {
@@ -18,11 +19,28 @@ export interface PluginInfo {
 }
 
 const log = Logger("BasePlugin")
+
 export class BasePlugin {
     protected _name: string = "";
-    constructor(name: string) { this._name = name; }
-    public register(){
+    private _api: IsolatedApiConfigBase = <IsolatedApiConfigBase>{}
+
+    constructor(name: string) {
+        this._name = name;
+    }
+
+    get name(): string {
+        return this._name;
+    }
+
+    get api(): IsolatedApiConfigBase {
+        return this._api;
+    }
+
+    set api(value: IsolatedApiConfigBase) {
+        this._api = value;
+    }
+
+    public register() {
         log.debug(`Registering ${this.name}`)
     }
-    get name(): string { return this._name; }
 }

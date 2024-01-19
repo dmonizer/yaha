@@ -1,9 +1,5 @@
 import BaseSensor from "../server-components/model/BaseSensor"
-import { RequestInfo, RequestInit } from "node-fetch";
 import {Logger} from "../server-components/utilities/logger";
-
-//const fetch = (url: RequestInfo, init?: RequestInit) =>  import("node-fetch").then(({ default: fetch }) => fetch(url, init));
-
 
 const weatherUrl = "https://www.ilmateenistus.ee/wp-content/themes/ilm2020/meteogram.php/?locationId=784&coordinates=";
 const COORDINATES_CONFIG_KEY = "coordinates-array"
@@ -14,7 +10,7 @@ const COORDINATES_CONFIG_KEY = "coordinates-array"
 const log = Logger("WeatherSensor")
 export default class WeatherSensor extends BaseSensor {
     constructor() {
-        super("WeatherSensor", {interval: 10});
+        super("WeatherSensor", {interval: 1200});
     }
 
     sensorInit() {

@@ -1,4 +1,5 @@
-import MessageDistributor from "./MessageDistributor";
+import {Messaging} from "./MessageDistributor";
+import MessageDistributorSingleton from "./MessageDistributor";
 
 export interface IsolatedState {
     set: (arg0: any) => void;
@@ -20,9 +21,9 @@ interface StateItem {
 
 class StateMachine {
     private states: Map<string, StateItem[]> = new Map<string, StateItem[]>();
-    private messageDistributor;
+    private messageDistributor: Messaging;
 
-    constructor(messageDistributor: MessageDistributor) {
+    constructor(messageDistributor: Messaging) {
         this.messageDistributor = messageDistributor;
     }
 
@@ -63,7 +64,7 @@ class StateMachine {
             get: () => this.getLastState(forName),
             set: (state) => this.setState(forName, state),
             subscribe: (owner: string, receiver: Function) => this.subscribe(owner, receiver),
-            unsubscribe: (arg0: string) => "not implemented"
+            unsubscribe: (arg0: string) => { throw new Error("unsubscribe not implemented") }
         }
     }
 }
@@ -71,22 +72,19 @@ class StateMachine {
 class StateMachineSingleton {
     private static stateMachine: StateMachine
 
-    static get(messageDistributor?: MessageDistributor) {
+    private static getInstance() {
         if (!this.stateMachine) {
-            if (!messageDistributor) {
-                throw new Error("MessageDistributor is required on first Singleton call")
-            }
-            this.stateMachine = new StateMachine(messageDistributor)
+            this.stateMachine = new StateMachine(MessageDistributorSingleton.getInstance())
         }
         return this.stateMachine;
     }
 
     public static getIsolatedFor(name: string): IsolatedState {
-        return this.stateMachine.getIsolated(name)
+        return this.getInstance().getIsolated(name)
     }
 
     public static getFull(): FullState {
-        return this.stateMachine.getFull()
+        return this.getInstance().getFull()
     }
 }
 

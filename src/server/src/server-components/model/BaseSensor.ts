@@ -6,7 +6,6 @@ import {BasePlugin} from "./BasePlugin";
 
 const log = Logger('BaseSensor')
 export default abstract class BaseSensor extends BasePlugin implements Sensor {
-    protected api: SensorAPI = <SensorAPI>{};
     private readonly activation: ActivationConfiguration;
     private readonly uuid: string;
 

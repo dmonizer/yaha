@@ -1,24 +1,17 @@
 import {config} from "dotenv";
-config()
-
-import StateMachine from "./server-components/StateMachine"
-import MessageDistributor from "./server-components/MessageDistributor"
+import StateMachineSingleton from "./server-components/StateMachine"
 import {Logger} from "./server-components/utilities/logger"
 import ConfigurationMachine from './server-components/ConfigurationStore'
-//import SensorLoader from "./server-components/SensorLoader"
 import FrontendWebsocket from "./server-components/frontend/FrontendWebsocket"
 
 
 import {YAHA_CONFIGURATION} from "./configuration-constants.js";
-import {APIConfig} from "./server-components/model/APIConfig";
 import {PluginManager} from "./server-components/utilities/PluginManager";
 import {isRunnable, isSensor, Sensor} from "./server-components/model/PluginInterfaces";
 import {SensorAPI} from "./server-components/model/SensorInterfaces";
-import StateMachineSingleton from "./server-components/StateMachine";
+import {EntityManager} from "./server-components/EntityManager";
 
-
-const workingDirectory = process.cwd()
-
+config()
 
 const log = Logger("server")
 log.info("Starting YAHA")
@@ -30,67 +23,49 @@ if (process.env.HTTPS_PROXY) {
 }
 
 
-
 const configurationMachine = new ConfigurationMachine();
 
 const yahaConfiguration = configurationMachine.getConfiguratorFor("yaha-instance");
 yahaConfiguration.set("config", YAHA_CONFIGURATION) // sensors should be somehow able to read and subscribe to this
 
-const messageDistributor = new MessageDistributor()
+const entityManager = new EntityManager();
 
-const api: APIConfig = {
-    state: StateMachineSingleton.get(messageDistributor)
-}
 //const {SENSOR_PATHS, PLUGIN_PATHS} = process.env || {SENSOR_PATHS:"", PLUGIN_PATHS:""}
 const SENSOR_PATHS = '/sensors'
+const PLUGIN_PATHS = '/plugins'
 
-const createSensorApiForSensor=(sensorName:string) => {
+const createSensorApiForSensor = (sensorName: string) => {
     return new SensorAPI(
             yahaConfiguration,
             StateMachineSingleton.getIsolatedFor(sensorName),
-            configurationMachine.getConfiguratorFor(sensorName))
+            configurationMachine.getConfiguratorFor(sensorName),
+            entityManager)
 }
 
-StateMachineSingleton.getFull().subscribe("WeatherSensor", (state: any) => {
-    log.debug("WeatherSensor state change: ", state)
-})
+StateMachineSingleton.getFull()
+        .subscribe("WeatherSensor", (state: any) => {
+            log.debug("WeatherSensor state change: ", state)
+        })
 
-const pluginManager = new PluginManager({pluginLocations : [SENSOR_PATHS], pluginNames : []})
-pluginManager.loadedPlugins().then(plugins=> plugins.map((plugin)=> {
-    if (isSensor(plugin)) {
-        log.debug(`plugin ${plugin.name} is a Sensor, initializing...`);
-        const sensor : Sensor = (plugin as Sensor)
-        const initResult = sensor.initialize(createSensorApiForSensor(plugin.name))
-        if (initResult.result) {
-            log.info(`Setting sensor ${plugin.name} run interval to ${initResult.activation.interval} seconds`);
-            setInterval(sensor.run.bind(sensor), initResult.activation.interval * 1000)
-        }
-    } else if (isRunnable(plugin)) {
-        plugin.run().then((res=>log.debug("Plugin.run() finished with result: ",res)))
-    }
-}))
-// if (SENSOR_PATHS) {
-//     log.info("Loading sensors from ", SENSOR_PATHS)
-//     const sensorLoader = new SensorLoader(SENSOR_PATHS.split(";")?.map(path => ensureTrailingSlash(workingDirectory) + path), api, configurationMachine, yahaConfiguration)
-//     api.state.subscribe(sensorLoader.getName(), (state: any) => {
-//         log.debug("sensor state changed: ", state)
-//     })
-//
-//     const sensors = sensorLoader.loadAllSensors()
-//
+const pluginManager = new PluginManager({pluginLocations: [SENSOR_PATHS, PLUGIN_PATHS], pluginNames: []})
+pluginManager.loadedPlugins()
+        .then(plugins => plugins.map((plugin) => {
+            if (isSensor(plugin)) {
+                log.debug(`plugin ${plugin.name} is a Sensor, initializing...`);
+                const sensor: Sensor = (plugin as Sensor)
+                const initResult = sensor.initialize(createSensorApiForSensor(plugin.name))
+                if (initResult.result) {
+                    log.info(`Setting sensor ${plugin.name} run interval to ${initResult.activation.interval} seconds`);
+                    setInterval(sensor.run.bind(sensor), initResult.activation.interval * 1000)
+                }
+            } else if (isRunnable(plugin)) {
+                plugin.api = createSensorApiForSensor(plugin.name);
+                plugin
+                        .run()
+                        .then((res => log.debug("Plugin.run() finished with result: ", res)))
+            }
+        }))
 
-//     api.state.subscribe("ApiDemoSensor", (state : any) => {
-//         log.debug("ApiDemoSensor state change: ", state)
-//     })
-// } else {
-//     log.warn("Environment variable SENSOR_PATHS not found, skipping sensors loading.")
-// }
-//
-// if (PLUGIN_PATHS) {
-//     // const pluginLoader = new PluginLoader(PLUGIN_PATHS.split(';')?.map(path => ensureTrailingSlash(workingDirectory) + path))
-// } else {
-//     log.warn("Environment variable PLUGIN_PATHS not found, skipping plugins loading.")
-// }
 const frontendSockets = new FrontendWebsocket(9991, StateMachineSingleton.getFull())
 
 setInterval(() => true, 2000)

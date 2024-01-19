@@ -1,5 +1,8 @@
-type LogLevel = string
-const LOG_LEVELS: LogLevel[] = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR']
+import MessageDistributorSingleton from "../MessageDistributor";
+
+export enum LogLevel {
+    TRACE = 1, DEBUG = 2, INFO = 3, WARN = 4, ERROR = 5
+}
 
 export interface Log {
     warn: (...args: any[]) => void;
@@ -9,39 +12,68 @@ export interface Log {
     info: (...args: any[]) => void
 }
 
-export const Logger = (logSource: string) => {
-    const ACTIVE_LEVEL = LOG_LEVELS.indexOf(process.env?.LOGLEVEL?.toUpperCase() || 'INFO')
+class LoggerMachine {
+    private static activeLevel: LogLevel;
+    private static initialized = false;
+    private static initializing = false;
 
-    const formatDateTime = () => new Intl.DateTimeFormat('en-GB', {
-        dateStyle: 'short', timeStyle: 'long', timeZone: 'UTC',
-    }).format(new Date())
-
-    const stringify = (object: any) : string =>{ // TODO: not working correctly - should enumerate class properties, instead currently returns {} for some (? ie loaded plugin) classes (need to detect constructor presence accurately)
-        if (typeof object !== 'object') return JSON.stringify(object)
-        if (!object.default || object.constructor.name === "string" || object.constructor.name === "Object") return JSON.stringify(object)
-        const className = object.constructor.name;
-        const classProperties = Object.getOwnPropertyNames(object).map(propertyName =>{propertyName:object[propertyName]})
-        const classDescriptor = Object.getOwnPropertyDescriptors(object);
-        return JSON.stringify( { className, classProperties, classDescriptor } );
+    static init() {
+        LoggerMachine.initializing = true;
+        const setLevel = process.env?.LOGLEVEL?.toUpperCase() || 'INFO'
+        LoggerMachine.activeLevel = LogLevel[setLevel as keyof typeof LogLevel] || LogLevel.INFO;
+        MessageDistributorSingleton.getInstance().addSubscriber("LogLevel", LoggerMachine.logLevelListener)
+        LoggerMachine.initialized = true
+        LoggerMachine.initializing = false;
     }
-    function writeLog(source: string, level: LogLevel, ...args: any[]) {
-        if (LOG_LEVELS.indexOf(level) >= ACTIVE_LEVEL) {
-            const argumentsAsStrings = Array.from(args).map(arg => stringify(arg));
 
-            console.log(`[${source}] - [${level}] - ${formatDateTime()} - ${argumentsAsStrings.join(' - ')}`)
+    public static get(logSource: string) {
+        if (!LoggerMachine.initializing && !LoggerMachine.initialized) {
+            LoggerMachine.init();
+        }
+
+        return {
+            trace: LoggerMachine.getLoggerFor(logSource, LogLevel.TRACE),
+            debug: LoggerMachine.getLoggerFor(logSource, LogLevel.DEBUG),
+            info: LoggerMachine.getLoggerFor(logSource, LogLevel.INFO),
+            warn: LoggerMachine.getLoggerFor(logSource, LogLevel.WARN),
+            error: LoggerMachine.getLoggerFor(logSource, LogLevel.ERROR)
         }
     }
 
-    function getLoggerFor(level: LogLevel) {
-        return (...args: any[]) => writeLog(logSource, level, ...args)
+    private static logLevelListener(msg: any) {
+        if (msg.level!==LoggerMachine.activeLevel) {
+            LoggerMachine.writeLog("Logger", LogLevel.INFO, `Received new log level: ${LogLevel[msg.level]}`)
+            LoggerMachine.activeLevel = LogLevel[msg.level] ? msg.level:LogLevel.INFO;
+        }
     }
 
-    return {
-        trace: getLoggerFor(LOG_LEVELS[0]),
-        debug: getLoggerFor(LOG_LEVELS[1]),
-        info: getLoggerFor(LOG_LEVELS[2]),
-        warn: getLoggerFor(LOG_LEVELS[3]),
-        error: getLoggerFor(LOG_LEVELS[4])
+    private static formatDateTime() {
+        return new Intl.DateTimeFormat('en-GB', {
+            dateStyle: 'short', timeStyle: 'long', timeZone: 'UTC',
+        }).format(new Date())
+    }
 
+    private static stringify(object: any) { // TODO: not working correctly - should enumerate class properties, instead currently returns {} for some (? ie loaded plugin) classes (need to detect constructor presence accurately)
+        return JSON.stringify(object);
+        // if (typeof object !== 'object') return JSON.stringify(object)
+        // if (!object.default || object.constructor.name === "string" || object.constructor.name === "Object") return JSON.stringify(object)
+        // const className = object.constructor.name;
+        // const classProperties = Object.getOwnPropertyNames(object).map(propertyName =>{propertyName:object[propertyName]})
+        // const classDescriptor = Object.getOwnPropertyDescriptors(object);
+        // return JSON.stringify( { className, classProperties, classDescriptor } );
+    }
+
+    private static writeLog(source: string, level: LogLevel, ...args: any[]) {
+        if (level.valueOf() >= LoggerMachine.activeLevel.valueOf()) {
+            const argumentsAsStrings = Array.from(args).map(arg => LoggerMachine.stringify(arg));
+
+            console.log(`[${source}] - [${LogLevel[level.valueOf()]}] - ${LoggerMachine.formatDateTime()} - ${argumentsAsStrings.join(' - ')}`)
+        }
+    }
+
+    private static getLoggerFor(logSource: string, level: LogLevel) {
+        return (...args: any[]) => LoggerMachine.writeLog(logSource, level, ...args)
     }
 }
+
+export const Logger = (logSource: string) => LoggerMachine.get(logSource)
