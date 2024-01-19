@@ -4,12 +4,12 @@
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
   "scripts": {
-    "startServer": "ts-node server/src/server.ts",
+    "startServer": "ts-node src/server/src/server.ts",
     "test": "jasmine",
     "devServer": "nodemon --watch 'src/server/src/**/*.ts' --exec yarn run buildTsNode",
     "buildTsNode": "yarn run build && ts-node src/server/src/server.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/server/src/server.js"
   },
   "keywords": [],
   "author": "dmonizer <dmonizer@github.com>",

@@ -11,7 +11,7 @@ const log = Logger("PluginManager")
 export class PluginManager {
     public name: string = "PluginManager"
     private config: PluginsConfig;
-    private detectedEnv: { ext: string; isTsNode: boolean; codePath: string; isTypescript: boolean };
+    private detectedEnv: { cwd: string; ext: string; isTsNode: boolean; codePath: string; isTypescript: boolean };
     private _loadedPlugins: BasePlugin[] = new Array<BasePlugin>();
     private initialized: boolean = false
 
@@ -50,7 +50,7 @@ export class PluginManager {
         const loadedPlugins = new Array<BasePlugin>();
         log.debug("Working in: ", process.cwd())
         for (let pluginName of plugins) {
-            log.info(`Loading plugin ${pluginName} ...`)
+            log.info(`Loading plugin ${pluginName}`)
             loadedPlugins.push(await this.loadSinglePlugin(pluginName))
         }
         return loadedPlugins
@@ -81,18 +81,20 @@ export class PluginManager {
         // @ts-ignore
         const isTypescript = () => __filename.indexOf('.ts')===__filename.length - 3;
 
-        return {
-            cwd: process.cwd(),
+        const env =  {
+            cwd: ensureTrailingSlash(process.cwd()),
             isTypescript: isTypescript(),
             isTsNode: isTsNode(),
             ext: isTypescript() ? '.ts':'.js',
-            codePath: isTypescript() ? (isTsNode() ? '/':"/"):'/dist/'
+            codePath: ensureTrailingSlash(isTypescript() ? (isTsNode() ? 'src/server/src':""):'dist/server/src')
         }
+        log.trace(`Environment for plugins detected as: ${JSON.stringify(env)}`)
+        return env;
     }
 
     private findAllPlugins(pluginLocations: string[]) {
         return pluginLocations.map((location) => {
-            const path = process.cwd() + ensureTrailingSlash(location) + '*' + this.detectedEnv.ext;
+            const path = this.detectedEnv.cwd + this.detectedEnv.codePath + ensureTrailingSlash(location) + '*' + this.detectedEnv.ext;
             const filesFound = globSync(path)
             log.debug(`In ${path} found files: ${filesFound}`)
             return filesFound
