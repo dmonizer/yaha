@@ -7,6 +7,24 @@ idea is to have
  - separate backend component, which serves states as an REST(?) or websockets? to
  - frontend (of which there can be multiple then - web, app(s), console etc)
 
+# next up in TODO
+- rework general plugin framework - make sensors be a subclass of generic plugins
+  - make plugins return class (sensor/plugin/etc), name, author, organization, version, capabilities nad documentation url
+
+```typescript
+interface PluginInitData {
+    pluginClass : PluginClass,  
+    name : String,
+    author: String,
+    organization : String,
+    documentationUrl : String,
+    version : { major : Number, minor : Number, patch : Number},
+    capabilitie : Set<PluginCapabilities>     
+}
+```
+  - make plugin calling class://name.author.org/method/parameters
+  - create tests for plugins to adhere to "standard", ie all fields correctly returned on init, version as a semver etc
+- make statemachine and messageDistributor also plugins
 
 # How to install
 

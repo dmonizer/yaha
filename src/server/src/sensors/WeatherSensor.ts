@@ -1,5 +1,5 @@
-import BaseSensor from "../server-components/BaseSensor.js"
-import fetch from 'node-fetch'
+import BaseSensor from "../server-components/model/BaseSensor"
+import {Logger} from "../server-components/utilities/logger";
 
 const weatherUrl = "https://www.ilmateenistus.ee/wp-content/themes/ilm2020/meteogram.php/?locationId=784&coordinates=";
 const COORDINATES_CONFIG_KEY = "coordinates-array"
@@ -7,9 +7,10 @@ const COORDINATES_CONFIG_KEY = "coordinates-array"
  * this is functional demo sensor loading outside temperatures for Tallinn, Tartu and Pärnu in Estonia from
  * http://www.ilmateenistus.ee/ webpage and updating the state with them
  */
+const log = Logger("WeatherSensor")
 export default class WeatherSensor extends BaseSensor {
     constructor() {
-        super("WeatherSensor", {interval: 120});
+        super("WeatherSensor", {interval: 1200});
     }
 
     sensorInit() {
@@ -20,32 +21,24 @@ export default class WeatherSensor extends BaseSensor {
     }
 
     capabilities() {
-        if (!this.api) {
-            return {}
-        }
-        this.api.logger.debug("capabilities()")
-
-        return {
-            capabilities: [this.api.capabilities.DISCOVERY,
-                this.api.capabilities.EXTERNAL_CONNECTION,
-                this.api.capabilities.STATE_PRODUCER]
-        }
+        log.debug("capabilities()")
     }
 
     run() {
-        this.api.logger.debug("Starting run()")
+        log.debug("Starting run()")
 
-        const coordinates = this.api.config.get(COORDINATES_CONFIG_KEY);
+        const coordinates = this.api.config.get(COORDINATES_CONFIG_KEY) as Array<string>;
 
-        if (!coordinates || !coordinates.length > 0) {
-            this.api.logger.warn(`Sensor ${this.getName()} is not configured properly, aborting sensor run`)
+        if (!coordinates || (coordinates.length === 0)) {
+            log.warn(`Sensor ${this.getName()} is not configured properly, aborting sensor run: ${JSON.stringify(coordinates)}`)
             return
         }
 
-        coordinates.map(coords => {
+        coordinates.forEach(coords => {
             this._getWeatherForCoordinates(coords)
-                .then((result) => {
-                    this.api.state.set({
+                .then((result:any) => {
+                    //log.debug(`Weather for coordinates (${JSON.stringify(coords)}): ${JSON.stringify(result)}`)
+                        this.api.state.set( {
                         coords,
                         locationName: result.location,
                         temperatures: this._extractTemperatures(result)
@@ -53,25 +46,25 @@ export default class WeatherSensor extends BaseSensor {
                 })
 
         })
-        this.api.logger.debug("Ending run()")
+        log.debug("Ending run()")
     }
 
     end() {
     }
 
-    _extractTemperatures(weather) {
+    _extractTemperatures(weather : any) {
         const timeSeries = weather.forecast.tabular.time
-        return timeSeries.map(hourly => hourly.temperature["@attributes"].value)
+        return timeSeries.map((hourly:any) => hourly.temperature["@attributes"].value)
     }
 
-    _getWeatherForCoordinates(coordinates) {
-        return fetch(weatherUrl + coordinates, {headers: {'accept': 'application/json'}})
-            .then(result => result.json())
-            .catch(err => {
+    async _getWeatherForCoordinates(coordinates: string) {
+        return  fetch(weatherUrl + coordinates, {headers: {'accept': 'application/json'}})
+            .then((result:any) => result.json())
+            .catch((err:any) => {
                 if (!err) {
                     return
                 }
-                this.api.logger.error("Error loading weather for coordinates " + JSON.stringify(coordinates) + " (" + JSON.stringify(err) + ")")
+                log.error("Error loading weather for coordinates " + JSON.stringify(coordinates) + " (" + JSON.stringify(err) + ")")
             })
     }
 }

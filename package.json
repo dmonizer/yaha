@@ -1,26 +1,74 @@
 {
   "name": "yaha",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Yet Another Home Automation",
   "main": "server/src/server.js",
   "scripts": {
-    "startServer": "node server/src/server.js",
-    "test": "jasmine"
+    "startServer": "ts-node server/src/server.ts",
+    "test": "jasmine",
+    "devServer": "nodemon --watch 'src/server/src/**/*.ts' --exec yarn run buildTsNode",
+    "buildTsNode": "yarn run build && ts-node src/server/src/server.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "dmonizer <dmonizer@github.com>",
   "license": "ISC",
   "dependencies": {
-    "fetch": "^1.1.0",
-    "glob": "^7.1.7",
-    "https-proxy-agent": "^5.0.0",
-    "node-fetch": "^3.1.0",
-    "node-port-scanner": "^3.0.1",
-    "server-components": "^0.2.1",
-    "state": "^0.2.0",
-    "winston": "^3.3.3"
+    "dotenv": "^16.3.1",
+    "glob": "^10.3.10",
+    "mqtt": "^5.3.4",
+    "node-fetch": "^3.3.2",
+    "ws": "^8.16.0",
+    "zigbee-herdsman-converters": "^18.13.0",
+    "uri-js": "^4.4.1"
   },
   "devDependencies": {
-    "jasmine": "^3.10.0"
+    "@types/glob": "^8.1.0",
+    "@types/node": "^20.10.8",
+    "@types/ws": "^8.5.10",
+    "jasmine": "^3.10.0",
+    "proxy-agent": "^6.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "repository": "https://github.com/dmonizer/yaha",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0 <22.0.0"
+  },
+  "settings": {
+    "noInlineConfig": true,
+    "node": {
+      "tryExtensions": [
+        ".js",
+        ".ts",
+        ".d.ts"
+      ],
+      "moduleDirectory": [
+        "node_modules",
+        "src/"
+      ]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".js",
+          ".ts",
+          ".d.ts"
+        ],
+        "moduleDirectory": [
+          "node_modules",
+          "src/"
+        ],
+        "typescript": {}
+      },
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "."
+      }
+    }
   }
 }

@@ -1,0 +1,139 @@
+import glob from 'glob';
+import path from 'path';
+import {APIConfig} from "./model/APIConfig";
+import ConfigurationStore, {SingleConfigurationStore} from "./ConfigurationStore";
+import {ensureTrailingSlash} from "./Utilities";
+import {SensorAPI, SensorCapabilities, SensorStateMachine} from "./BaseSensor";
+import {Logger} from "../logger";
+
+
+export default class SensorLoader {
+    private sensorsPaths;
+    private sensorApi;
+    private configurationSore;
+    private instanceConfiguration;
+    private state;
+    private log;
+    private readonly name;
+
+    constructor(sensorsPaths: string[], sensorApi: APIConfig, configurationStore: ConfigurationStore, instanceConfiguration: SingleConfigurationStore) {
+        this.sensorsPaths = sensorsPaths;
+        this.sensorApi = sensorApi;
+        this.configurationSore = configurationStore;
+        this.instanceConfiguration = instanceConfiguration;
+        this.state = sensorApi.state
+
+        this.log = Logger("SensorLoader");
+        this.name = "SensorLoader"
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    getFilename = (file: string) => {
+        return path.basename(file)
+    }
+    loadAllSensors = () => this.sensorsPaths.map(path => this.loadAllSensorsInDirectory(path))
+
+    loadAllSensorsInDirectory(directory: string) {
+        const sensors = [];
+        const sensorFileSpec = ensureTrailingSlash(directory) + '*.js';
+        this.log.info("Loading sensors from: " + sensorFileSpec)
+        sensors.push(glob.sync(sensorFileSpec).map(f => this.processSensorFile(directory, f)));
+
+        return Promise.allSettled(sensors).then((result) => {
+            this.log.info(`Loaded ${result.length} sensors`)
+            return result;
+        });
+    }
+
+    loadSensor = async (sensorFile: string) => {
+        this.log.debug(`Loading sensor from ${sensorFile}`)
+        return import(sensorFile)
+                .then(({default: sensor}) => new sensor())
+                .catch(err => {
+                    this.log.error(`Error loading ${sensorFile}: ${err.message}`)
+                })
+        /*const sensorModule = await import(sensorFile)
+        try {
+            if (typeof sensorModule.default!=='function') {
+                throw new Error("Sensor does not have default export (ie export default class SensorName extends BaseSensor)")
+            }
+
+
+            return new sensorModule.default();
+        } catch (e) {
+            this.log.error(`Error loading sensor from ${sensorFile}: ${e}`)
+        }*/
+
+    }
+
+    processSensorFile(path: string, file: string) {
+        this.log.info("Processing sensor: " + file)
+        const sensorFileName = this.getFilename(file);
+
+        this.state.setState(this.name, {
+            "loadsensor": true,
+            "sensorname": sensorFileName
+        });
+
+
+
+        const makeStateMachine = (name: string): SensorStateMachine => {
+            return {
+                set: (value: any) => this.state.setState(name, value),
+                get: () => this.state.getLastState(name),
+                subscribe: (stateProducer: string, subscriber: Function) => this.state.subscribe(stateProducer, subscriber),
+                unsubscribe: (stateProducer) => {
+                    throw new Error("Not implemented")
+                }//this.state.unsubscribe(stateProducer)
+            }
+        }
+
+        return this.loadSensor(path + sensorFileName)
+                .then(sensor => {
+                    let sensorApi: SensorAPI = {
+                        yaha: {
+                            settings: this.instanceConfiguration
+                        },
+                        //proxyAgent : this.sensorApi.proxyAgent,
+                        logger: this.sensorApi.createLogger(sensor.getName()),
+                        state: makeStateMachine(sensor.getName()),
+                        config: this.configurationSore.getConfiguratorFor(sensor.getUuid(), sensor.getName()),
+                        capabilities: [],
+                        fileInfo: {
+                            name: sensorFileName,
+                            path
+                        }
+                    }
+
+
+                    const sensorInitResult = sensor.initialize(sensorApi);
+
+                    if (!sensorInitResult.success) {
+                        this.log.error("Error initializing sensor", file, sensorInitResult.error)
+                        this.state.setState(this.name, {
+                            "loadSensor": true,
+                            sensorFileName,
+                            error: sensorInitResult.error
+                        })
+                    } else {
+                        this.state.setState(this.name, {
+                            "loadSensor": true,
+                            sensorFileName,
+                            "success": true
+                        })
+                        if (sensor.getActivation().interval) {
+                            this.log.debug(`Setting ${sensor.getActivation().interval} seconds interval run for ${sensor.getName()}`)
+                            setInterval(() => sensor.run(), sensor.getActivation().interval * 1000)
+                        } else if (sensor.getActivation().cron) {
+                            this.log.warn("CRON interval activation not implemented yet.")
+                        }
+                    }
+                    return sensor;
+                }).catch(error => {
+                    this.log.error("Error loading sensor: ", error)
+                })
+    }
+}
